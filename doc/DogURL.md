@@ -95,6 +95,8 @@ The previous kinds of Dog URLs were replaced with a URL reference that is includ
 
 Records within the `embed` table can choose what kind of processing is applied to the text before it is embedded.  There can be no processing (in which case the text is just echoed in place of the Dog URL), or recursive Dog URL processing, or template processing, or both template and recursive Dog URL processing.  When both template and recursive Dog URL processing are selected at the same time, template processing is always done first, and then recursive Dog URL processing.
 
+Dog URL processing is actually always done.  When a text record in the `embed` table specifies that there should be no Dog URL processing, then what actually happens is that any character sequences `[[dog://` found in the text are escaped as `[[dog://!` so that the result of applying Dog URL processing will be exactly the same as if there was no Dog URL processing.
+
 Recursive Dog URL processing means that before the original Dog URL is replaced, Dog URLs in the generated output are themselves processed and replaced.  This can allow for multi-level recursive text processing.  To prevent infinite loops, the Dog CMS text engine keeps track of a stack of embed records and makes sure when a new embed is recursively processed, that it does not already exist on the embed record stack.  This prevents infinite loops within the recursion.
 
 To prevent excessive processing, the maximum depth of recursive Dog URL resolution is also limited.  By default, this limit is 32 levels of recursion.  However, if the configuration variable `dog_recurse_limit` is defined in the `vars` table, then the integer value there (which must be greater than zero) is used instead as the limit.
