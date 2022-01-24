@@ -94,9 +94,19 @@ In both _item listing_ and _page content_ state, the following variables are ava
 
 - `has_prev` : 1 if there is a previous content page, 0 if not
 - `has_next` : 1 if there is a next content page, 0 if not
+- `page_name` : string containing the unique page ID
+- `page_time` : string containing the rendered page time
+- `page_seq` : 1 if in sequence, 0 if out of sequence
+- `page_pin` : 1 if page is pinned, 0 if not
 - `content` : array of single element containing page content
 
 The `has_prev` and `has_next` variables allow a template to determine whether this is the first content page, the last content page, a content page in the middle, or a _singleton_ page.  A _singleton_ page has both `has_prev` and `has_next` set to zero.  This occurs both in the case when there is only a single content page in the chronology and also for pages that have a pin-class of -1, indicating they are out of the chronology.  The order of pages implied by the previous and next links is the same as the ordering of pages used in the catalog -- see the previous section for details.
+
+The `page_name` is the unique name of the page as stored in the database.  By default, this is exactly the same as the page ID stored in records.  However, if a variable in the `vars` table named `page_name_ucase` is defined to the value 1, then all lowercase letters will be raised to uppercase in this variable.  Also, if a variable in the `vars` table named `page_name_special` is defined, then its string value replaces any underscores in the page name.
+
+The `page_time` is the timestamp of the page rendered as a string.  First, the integer timestamp is interpreted within a local timezone.  If a variable in the `vars` table named `time_zone` is defined, then this will be the local timezone used.  The `time_zone` value must be a recognized name or offset string by the Perl `DateTime::TimeZone` module, such as `America/Chicago`.  If no `time_zone` variable is defined, the timezone `UTC` is the default.  Second, the locale for language-specific things such as the names of days of the weeks and months is set.  If a variable in the `vars` table named `time_locale` is defined, then this will be set as the locale in the Perl `DateTime` module object.  Third, the date format string is determined.  If a variable in the `vars` table named `time_format` is defined, then this will be the pattern.  Otherwise, the pattern defaults to `%Y-%m-%d` for the international YYYY-MM-DD format.  The pattern follows the `strftime` syntax; see the documentation for the Perl module `DateTime` for further details.  Finally, the date is formatted according the date format in the selected locale for the selected time zone.
+
+The `page_seq` defines whether the page is within the chronology, or whether it has a pin-class of -1, meaning that it is not in the chronology sequence.  The `page_pin` defines whether the page has a pin-class that is greater than zero.  `page_pin` is always zero if `page_seq` is zero.
 
 The `content` variable is always an array of exactly one element.  This allows `<TMPL_LOOP>` on `content` to be used like a namespace, making available all of the properties in the content object.  `<TMPL_LOOP>` is a misnomer in this case, because it is always run exactly once rather than looping over multiple items.
 
@@ -107,14 +117,22 @@ JSON properties with boolean values can be used in `<TMPL_IF>` and `<TMPL_UNLESS
 If the `has_prev` variable is one, then the following variables are also available:
 
 - `prev_link` : the link to the previous content page
+- `prev_name` : string containing the unique page ID of previous page
+- `prev_time` : string containing the rendered page time of previous page
+- `prev_seq` : 1 if previous page in sequence, 0 if out of sequence
+- `prev_pin` : 1 if previous page is pinned, 0 if not
 - `prev_content` : array of single element containing previous page content
 
 If the `has_next` variable is one, then the following variables are also available:
 
 - `next_link` : the link to the next content page
+- `next_name` : string containing the unique page ID of next page
+- `next_time` : string containing the rendered page time of next page
+- `next_seq` : 1 if next page in sequence, 0 if out of sequence
+- `next_pin` : 1 if next page is pinned, 0 if not
 - `next_content` : array of single element containing next page content
 
-The `prev_content` and the `next_content` variables, if present, have the same format as the `content` variable, except they apply to the previous page and the next page, respectively.
+The `prev_content` and the `next_content` variables, if present, have the same format as the `content` variable, except they apply to the previous page and the next page, respectively.  The `_name` `_time` `_seq` and `_pin` properties have the same format as described earlier, except they apply to the previous or next page.
 
 When generating an item listing for a catalog page, use the Dog URL `[[dog://here]]` to link to the URL of the page that is being listed.  See `DogURL.md` for further information.
 
