@@ -86,4 +86,36 @@ By default, each catalog page has at most 20 items in its listing.  If the `cata
 
 Only pages that have a pin-class that is zero or greater will be included in the catalog.  Within the catalog, pages are always sorted first in descending order of pin-class, so that pinned pages will always appear at the start of the catalog.  Within each pin-class (including the pin-class of zero), pages are by default ordered in reverse chronological order, with more recent pages first.  However, if the `chronology` variable is defined in the `vars` table, then it must have a value either of `forward` or `reverse` which selects either forward chronology (oldest pages first) or reverse chronology (newest pages first).
 
-...
+## Content variables
+
+The _item listing_ and _page content_ states have the same structure, except for the setting of the `is_catalog` state variable.  The listing for a page on the catalog is therefore thought of as an alternate way of rendering a page.
+
+In both _item listing_ and _page content_ state, the following variables are available in addition to the state variables that are always available:
+
+- `has_prev` : 1 if there is a previous content page, 0 if not
+- `has_next` : 1 if there is a next content page, 0 if not
+- `content` : array of single element containing page content
+
+The `has_prev` and `has_next` variables allow a template to determine whether this is the first content page, the last content page, a content page in the middle, or a _singleton_ page.  A _singleton_ page has both `has_prev` and `has_next` set to zero.  This occurs both in the case when there is only a single content page in the chronology and also for pages that have a pin-class of -1, indicating they are out of the chronology.  The order of pages implied by the previous and next links is the same as the ordering of pages used in the catalog -- see the previous section for details.
+
+The `content` variable is always an array of exactly one element.  This allows `<TMPL_LOOP>` on `content` to be used like a namespace, making available all of the properties in the content object.  `<TMPL_LOOP>` is a misnomer in this case, because it is always run exactly once rather than looping over multiple items.
+
+The properties of the `content` variable are generated from the content JSON data stored in the page record.  The content JSON data must have a JSON object on the top level.  Properties of this top-level JSON object become properties of the `content` variable.  Properties that have boolean values in JSON become integer properties that have 1 for true and 0 for false.  Properties that have string values in JSON become properties with the same string values.  The only other types of values allowed are arrays in which each element is a JSON object that has the same format as the top-level JSON object, allowing for recursion and multiple values.
+
+JSON properties with boolean values can be used in `<TMPL_IF>` and `<TMPL_UNLESS>` blocks.  JSON properties with string values can be used in `<TMPL_VAR>` blocks.  JSON properties with arrays of JSON objects can be used in `<TMPL_LOOP>` blocks, and also used in `<TMPL_IF>` and `<TMPL_UNLESS>` to check for the array being non-empty or empty.
+
+If the `has_prev` variable is one, then the following variables are also available:
+
+- `prev_link` : the link to the previous content page
+- `prev_content` : array of single element containing previous page content
+
+If the `has_next` variable is one, then the following variables are also available:
+
+- `next_link` : the link to the next content page
+- `next_content` : array of single element containing next page content
+
+The `prev_content` and the `next_content` variables, if present, have the same format as the `content` variable, except they apply to the previous page and the next page, respectively.
+
+When generating an item listing for a catalog page, use the Dog URL `[[dog://here]]` to link to the URL of the page that is being listed.  See `DogURL.md` for further information.
+
+Also, when generating an item listing for a catalog page, Dog URLs for embedded text will be resolved until no embedded Dog URLs remain, and Dog URLs with a `here` component will then be replaced with equivalent Dog URLs that do not use the `here` component.  However, all other types of Dog URLs will be left without resolution.  After all the generated item listing fragments are assembled into the catalog page, then a final pass will be run to resolve all remaining Dog URL links.
