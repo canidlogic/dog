@@ -46,8 +46,7 @@ The `page` table stores all the content pages within the Dog CMS.  It has the fo
       pjson  TEXT NOT NULL,
       plist  TEXT NOT NULL,
       ppage  TEXT NOT NULL,
-      purl   TEXT NOT NULL,
-      pbase  TEXT NOT NULL
+      purl   TEXT NOT NULL
     );
 
     CREATE UNIQUE INDEX page_iname ON page(pname);
@@ -64,11 +63,7 @@ The `pjson` field stores a JSON representation of the page data.  See `PageTempl
 
 The `plist` and `ppage` fields store the HTML content used to render the page in catalog listings and content pages, respectively.  `plist` should be an HTML fragment that will be included within a catalog page, while `ppage` should be a complete HTML page.  Dog URL replacement is done to both of these values to render them.  See `DogURL.md` for further information.
 
-The `purl` field is the canonical URL used to refer to this page on the website.  If a variable in the `vars` table named `local_page_prefix` is defined, then this value is automatically prefixed to all `purl` field values to form the actual URLs to the pages.
-
-The `pbase` field is the canonical base URL that is used to construct URLs to resources specific to this page.  If a variable in the `vars` table named `local_res_prefix` is defined, then this value is automatically prefixed to all `pbase` field values to form the actual URL base for the resources.
-
-See `DogURL.md` for further information about how the `purl` and `pbase` fields are used.
+The `purl` field is the canonical URL used to refer to this page on the website.  If a variable in the `vars` table named `local_page_prefix` is defined, then this value is automatically prefixed to all `purl` field values to form the actual URLs to the pages.  See `DogURL.md` for further information.
 
 ## MIME table
 
@@ -96,9 +91,52 @@ The `mtype` field should obey the following guidlines:
 
 ## Resource table
 
-The `resource` table stores all the resources that may be referenced through Dog URL resource links.  (See `DogURL.md` for further information.)
+The `resource` table stores all the resources that may be referenced through Dog URL resource links.  (See `DogURL.md` for further information.)  The table has the following structure:
 
-...
+    CREATE TABLE resource(
+      rid   INTEGER PRIMARY KEY,
+      rpage INTEGER
+              REFERENCES page(pid)
+                ON DELETE CASCADE
+                ON UPDATE CASCADE,
+      rname TEXT NOT NULL,
+      rtime INTEGER NOT NULL,
+      rcode TEXT UNIQUE NOT NULL,
+      rtype INTEGER NOT NULL
+              REFERENCES mime(mid)
+                ON DELETE RESTRICT
+                ON UPDATE CASCADE,
+      rdata BLOB NOT NULL,
+      UNIQUE(rpage, rname, rtime)
+    );
+
+    CREATE UNIQUE INDEX resource_imulti
+      ON resource(rpage, rname, rtime DESC);
+    CREATE INDEX resource_iname
+      ON resource(rpage, rname);
+    CREATE INDEX resource_ipage
+      ON resource(rpage);
+
+    CREATE UNIQUE INDEX resource_icode
+      ON resource(rcode);
+    CREATE INDEX resource_itype
+      ON resource(rtype);
+
+The `rid` is the SQLite `rowid` alias field.
+
+When resources are referenced from Dog URLs, they are looked up with the page they belong to (or NULL for global resources), and a name that is unique within that page, or within the global context.  The page reference is stored in the `rpage` field (a foreign key into the `page` table) and the resource name is stored in the `rname` field.
+
+Looking a resource up by page and name might select multiple records in the resource table if there are multiple versions of the same resource.  The `rtime` field is the number of seconds since midnight GMT at the start of January 1, 1970, up to the point at which the resource version was uploaded into the database.  If multiple records are selected during a lookup by page and name, the record with the most recent timestamp is selected, to choose the most recent version of a resource.
+
+Once the appropriate resource record is located, the Dog URL must be transformed into a URL that the web client can use to request the specific version of the resource.  The details of how this is done is covered in `DogURL.md`.  However, the key point is that each specific version of each specific resource has a code that is unique across all resources in the resource table.  This unique code is stored in the `rcode` field.  The generated URL for the client will use this unique code, which can then be used to directly look up the appropriate resource for the client.
+
+This scheme means that the resource at each URL is immutable, since newer versions will get a new URL with a different code.  This allows for simple, efficient cache control of resources on clients and proxies.
+
+The recommended scheme for generating the unique code is to combine the `rpage`, `rname`, and `rtime` fields along with some random data, run this through an MD5 digest, and then use the base-64 representation, with `-` and `_` used for the last two digits to make the scheme URL-friendly, and without any padding `=` at the end.
+
+The `rtype` field is a foreign key into the `mime` table, which determines the MIME type that is reported to the client when the resource is fetched.
+
+Finally, the `rdata` field stores the actual binary data of the resource.
 
 ## Template table
 
