@@ -28,28 +28,49 @@ Dog URLs can be replaced by the URL to a specific global or local resource by us
     [[dog://page/{pageid}/{resname}]]
     [[dog://here/{resname}]]
 
-The first syntax is used for global resources.  To use this syntax, a variable named `global_res_dir` must be defined in the `vars` table in the Dog CMS database.  `{resname}` is appended to this variable value to form a URL to a global resource, and this resulting URL replaces the Dog URL reference.  For example:
+In order to use Dog resource URLs, a variable named `resource_prefix` must be defined in the `vars` table in the Dog CMS database.
 
-    global_res_dir = "http://www.example.com/cgi-bin/resource.cgi?name="
+The first syntax is used for global resources.  These are resources that are not attached to any specific page.  `{resname}` is the name of the global resource.  Within the Dog CMS database, the most recent version of the named global resource is looked up to read its unique resource code.  The Dog resource URL is then replaced with the value of the `resource_prefix` variable, with the unique resource code appended to it.  For example:
+
+    resource_prefix = "/cgi-bin/resource.cgi?code="
     
     Dog URL example:
     <img src="[[dog://site/my_logo]]"/>
 
+    Resource table:
+
+     rpage |  rname  |   rtime    |         rcode
+    =======+=========+============+========================
+     NULL  | my_logo | 1643146075 | R5mKwsDukZ0y7KhyG5-yQg
+     NULL  | my_logo | 1640554126 | 9IvxXyJwivb0ekde8GCeKA
+     NULL  | my_logo | 1637962146 | GaeftNe_dCGgWWkRgTovKg
+
     Resolution:
-    <img src="http://www.example.com/cgi-bin/resource.cgi?name=my_logo"/>
+    <img src="/cgi-bin/resource.cgi?code=R5mKwsDukZ0y7KhyG5-yQg"/>
 
-The second syntax is used to select a resource that is attached to a specific page.  First, the record for the page with ID `{pageid}` is looked up in the page table in the Dog CMS database.  The page base field is taken from this record.  If a variable named `local_res_prefix` is defined in the `vars` table, then its value is prefixed to the page base field to form the local base; otherwise, the local base is the same as the page base.  Finally, `{resname}` is appended to the local base to form a URL to a resource local to a specific page, and this resulting URL replaces the Dog URL reference.  For example:
+The second syntax is used to select a resource that is attached to a specific page.  `{pageid}` is the name of the page and `{resname}` is the name of the resource that is attached to that page.  Within the Dog CMS database, the page within the given ID is located.  Then, all records in the resource table that reference that page _and_ have the given `{resname}` are selected.  If there are multiple such records, the one with the most recent timestamp is used.  The unique resource code is determined from this selected record and returned to the client, prefixed with the value of the `resource_prefix` variable.  For example:
 
-    local_res_prefix = "/cgi-bin/page.cgi?name="
-
-    Page "my_page":
-    page_base = "my_page&resource="
-
+    resource_prefix = "/resource/"
+    
     Dog URL example:
     <img src="[[dog://page/my_page/my_photo]]"/>
 
+    Page table:
+
+     pid |  pname
+    =====+=========
+      25 | my_page
+
+    Resource table:
+
+     rpage |  rname   |   rtime    |         rcode
+    =======+==========+============+========================
+        25 | my_photo | 1643146075 | ozPiNGtWQgVqJeN54Z00vQ
+        25 | my_photo | 1640554126 | XL2bclrvF7mhOuY3F0yuRQ
+        25 | my_photo | 1637962146 | g5pDsacgBbTMJvPkpeuUDQ
+
     Resolution:
-    <img src="/cgi-bin/page.cgi?name=my_page&resource=my_photo"/>
+    <img src="/resource/ozPiNGtWQgVqJeN54Z00vQ"/>
 
 The third syntax is a context-sensitive way of referring to resources that are attached to a specific page without having to explicitly include the page ID of the current page.  Whenever Dog URLs are processed, there is a "current page" setting that either contains the page ID of the current page in the context, or is empty meaning that no current page is in the context.  When generating a specific page, the "current page" is always the page ID of the specific page that is being generated.  When generating a listing for a specific page within a catalog page, the "current page" is always the page ID of the specific page whose entry is being generated.  When generating a full catalog page without reference to any specific page, the "current page" is empty.
 
@@ -62,18 +83,21 @@ Dog URLs can be replaced by the URL to a specific page by using one of the follo
     [[dog://page/{pageid}]]
     [[dog://here]]
 
-The first syntax is used to get the URL to a page with ID `{pageid}`.  It works by looking up the page record with that ID in the page table in the Dog CMS database.  The page URL field is taken from this record.  Then, if a variable named `local_page_prefix` is defined in the `vars` table, its value is prefixed to the page URL value to form the replacement URL; otherwise, the replacement URL is the same as the page URL field value.  For example:
+The first syntax is used to get the URL to a page with ID `{pageid}`.  It works by looking up the page record with that ID in the page table in the Dog CMS database.  The page URL field is taken from this record.  Then, if a variable named `page_prefix` is defined in the `vars` table, its value is prefixed to the page URL value to form the replacement URL; otherwise, the replacement URL is the same as the page URL field value.  For example:
 
-    local_page_prefix = "/~username/view/"
-
-    Page "my_page":
-    page_url = "my_page/"
+    page_prefix = "/~username/view/"
 
     Dog URL example:
     <a href="[[dog://page/my_page]]"/>
 
+    Page table:
+
+     pid |  pname  |      purl
+    =====+=========+================
+      25 | my_page | page-url-title
+
     Resolution:
-    <a href="/~username/view/my_page/"/>
+    <a href="/~username/view/page-url-title"/>
 
 The second syntax makes use of the concept of a "current page" setting in the context (see the previous section for details).  The second syntax may only be used when the "current page" setting in the context is not empty.  The `here` part of the URL is replaced with `page/{pageid}` where `{pageid}` is the ID of the page that is the "current page" in the context.  The Dog URL is then processed the same way as for the first syntax explained above.  This is especially useful for generating a link to the page URL from a catalog page listing entry, since the "current page" for the page listing will be set to the correct page.
 
@@ -99,6 +123,6 @@ Dog URL processing is actually always done.  When a text record in the `embed` t
 
 Recursive Dog URL processing means that before the original Dog URL is replaced, Dog URLs in the generated output are themselves processed and replaced.  This can allow for multi-level recursive text processing.  To prevent infinite loops, the Dog CMS text engine keeps track of a stack of embed records and makes sure when a new embed is recursively processed, that it does not already exist on the embed record stack.  This prevents infinite loops within the recursion.
 
-To prevent excessive processing, the maximum depth of recursive Dog URL resolution is also limited.  By default, this limit is 32 levels of recursion.  However, if the configuration variable `dog_recurse_limit` is defined in the `vars` table, then the integer value there (which must be greater than zero) is used instead as the limit.
+To prevent excessive processing, the maximum depth of recursive Dog URL resolution is also limited.  By default, this limit is 32 levels of recursion.  However, if the configuration variable `recurse_limit` is defined in the `vars` table, then the integer value there (which must be greater than zero) is used instead as the limit.
 
 Template processing works according to the `HTML::Template` Perl module.  See `PageTemplate.md` for further details about templates.
