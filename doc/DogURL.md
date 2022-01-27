@@ -48,6 +48,8 @@ For example:
     Dog URL #2 resolution:
     <a href="/mysite/">
 
+Catalog URL resolution is __not__ recursive, so if `catalog_prefix` or `catalog_first` contains a Dog URL it will _not_ be processed.
+
 ## Dog resource URLs
 
 Dog URLs can be replaced by the URL to a specific global or local resource by using one of the following syntaxes:
@@ -104,6 +106,8 @@ The third syntax is a context-sensitive way of referring to resources that are a
 
 The third syntax may only be used when the "current page" is not empty.  The `here` part of the Dog URL is replaced with `page/{pageid}` where `{pageid}` is the page ID value stored in the "current page" context setting.  Then, the replaced Dog URL is processed the same way as for the second syntax explained above.
 
+Resource URL resolution is __not__ recursive (except for the limited case of the `here` syntax explained above), so if there is a Dog URL in the `resource_prefix` it will _not_ be processed.
+
 ## Dog page URLs
 
 Dog URLs can be replaced by the URL to a specific page by using one of the following syntaxes:
@@ -128,6 +132,8 @@ The first syntax is used to get the URL to a page with ID `{pageid}`.  It works 
     <a href="/~username/view/page-url-title"/>
 
 The second syntax makes use of the concept of a "current page" setting in the context (see the previous section for details).  The second syntax may only be used when the "current page" setting in the context is not empty.  The `here` part of the URL is replaced with `page/{pageid}` where `{pageid}` is the ID of the page that is the "current page" in the context.  The Dog URL is then processed the same way as for the first syntax explained above.  This is especially useful for generating a link to the page URL from a catalog page listing entry, since the "current page" for the page listing will be set to the correct page.
+
+Page URL resolution is __not__ recursive (except for the limited case of the `here` syntax explained above), so if there is a Dog URL in the `page_prefix` it will _not_ be processed.
 
 ## Dog text embedding
 
