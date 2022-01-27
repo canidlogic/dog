@@ -6,8 +6,7 @@ The database is stored in a SQLite database file, which has the following tables
 2. `page`
 3. `mime`
 4. `resource`
-5. `template`
-6. `embed`
+5. `embed`
 
 ## Name definition
 
@@ -138,8 +137,38 @@ The `rtype` field is a foreign key into the `mime` table, which determines the M
 
 Finally, the `rdata` field stores the actual binary data of the resource.
 
-## Template table
+## Embed table
 
-The `template` table stores templates that are used to dynamically generate HTML pages.  These templates follow the syntax of the Perl `HTML::Template` library, using the template variables defined in `PageVar.md`.  Additionally, after they have been transformed by `HTML::Template`, the results are run through the `dog://` URL resolution (see `DogURL.md`).
+The `embed` table stores text content that may be embedded using the Dog URL scheme for text embedding.  (See `DogURL.md` for further information.)  The table has the following structure:
 
-...
+    CREATE TABLE embed(
+      eid   INTEGER PRIMARY KEY,
+      epage INTEGER
+              REFERENCES page(pid)
+                ON DELETE CASCADE
+                ON UPDATE CASCADE,
+      ename TEXT NOT NULL,
+      eproc INTEGER NOT NULL,
+      etext TEXT NOT NULL,
+      UNIQUE(epage, ename)
+    );
+
+    CREATE UNIQUE INDEX embed_imulti ON embed(epage, ename);
+    CREATE INDEX embed_ipage ON embed(epage);
+
+The `eid` is the SQLite `rowid` alias field.
+
+`epage` references the parent page this embed resource belongs to, or NULL if this is a global embed resource.  `ename` is the name of this resource.  The name should follow the name format defined earlier.  For embeds attached to a specific page, the name must be unique within all embeds for that page, while global embed names must be unique among all global embeds.
+
+`eproc` is an integer value that defines what kind of processing is performed on the text.  The following values are possible:
+
+- `0` : literal text
+- `1` : Dog URL processing
+- `2` : template processing
+- `3` : template and Dog URL processing
+
+When both Dog URL and template processing are selected at the same time, template processing always is done first.
+
+Dog URL processing is actually always performed on the text.  For `eproc` codes `0` and `2`, all character sequences `[[dog://` that are found are replaced by the escape `[[dog://!` which means that when Dog URL processing is performed, you get the original text again.
+
+Template processing uses the Perl `HTML::Template` module, with special variables set up.  See `PageTemplate.md` for further information.
