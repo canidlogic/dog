@@ -7,6 +7,7 @@ The database is stored in a SQLite database file, which has the following tables
 3. `mime`
 4. `resource`
 5. `embed`
+6. `catalog`
 
 ## Name definition
 
@@ -172,3 +173,21 @@ When both Dog URL and template processing are selected at the same time, templat
 Dog URL processing is actually always performed on the text.  For `eproc` codes `0` and `2`, all character sequences `[[dog://` that are found are replaced by the escape `[[dog://!` which means that when Dog URL processing is performed, you get the original text again.
 
 Template processing uses the Perl `HTML::Template` module, with special variables set up.  See `PageTemplate.md` for further information.
+
+## Catalog table
+
+The `catalog` table contains pre-built catalog pages.  The contents of this table can be derived entirely from the rest of the database, so this is properly a cache table rather than a data table.  Caching the generated catalog pages means that they don't have to be regenerated from scratch each time they are requested.  However, it also means that this table may need to be rebuilt any time the database changes.
+
+The catalog table has the following structure:
+
+    CREATE TABLE catalog(
+      cid   INTEGER PRIMARY KEY,
+      cnum  INTEGER UNIQUE NOT NULL,
+      ctext TEXT
+    );
+
+The `cid` is the SQLite `rowid` alias.  The `cnum` is the catalog page number, where 1 is the first catalog page.  `ctext` is the fully generated text of the catalog page.  No Dog URL or template processing is needed here, so this generated page content can be echoed as-is.
+
+If `ctext` is NULL, it means that the catalog page exists, but there was an error generating it.  HTTP status 500 "Internal Server Error" can be returned to clients that request a catalog page with a NULL `ctext` field.
+
+If a catalog page is requested but no record in this table has a `cnum` matching the requested page number, then the catalog page does not exist and HTTP status 404 "Not Found" can be returned to clients.
