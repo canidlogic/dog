@@ -8,6 +8,7 @@ The database is stored in a SQLite database file, which has the following tables
 4. `resource`
 5. `embed`
 6. `catalog`
+7. `content`
 
 ## Name definition
 
@@ -186,8 +187,30 @@ The catalog table has the following structure:
       ctext TEXT
     );
 
+    CREATE UNIQUE INDEX catalog_inum ON catalog(cnum);
+
 The `cid` is the SQLite `rowid` alias.  The `cnum` is the catalog page number, where 1 is the first catalog page.  `ctext` is the fully generated text of the catalog page.  No Dog URL or template processing is needed here, so this generated page content can be echoed as-is.
 
 If `ctext` is NULL, it means that the catalog page exists, but there was an error generating it.  HTTP status 500 "Internal Server Error" can be returned to clients that request a catalog page with a NULL `ctext` field.
 
 If a catalog page is requested but no record in this table has a `cnum` matching the requested page number, then the catalog page does not exist and HTTP status 404 "Not Found" can be returned to clients.
+
+## Content table
+
+The `content` table contains pre-built content pages.  The contents of this table can be derived entirely from the rest of the database, so this is properly a cache table rather than a data table.  Caching the generated content pages means that they don't have to be regenerated from scratch each time they are requested.  However, it also means that this table may need to be rebuilt any time the database changes.
+
+The content table has the following structure:
+
+    CREATE TABLE content(
+      tid   INTEGER PRIMARY KEY,
+      tname TEXT UNIQUE NOT NULL,
+      ttext TEXT
+    );
+
+    CREATE UNIQUE INDEX content_iname ON content(tname);
+
+The `tid` is the SQLite `rowid` alias.  The `tname` is the name of the page, which matches the equivalent field in the `page` table.  The `ttext` is the fully generated text of the content page.  No Dog URL or template processing is needed here, so this generated page content can be echoed as-is.
+
+If `ttext` is NULL, it means that the content page exists, but there was an error generating it.  HTTP status 500 "Internal Server Error" can be returned to clients that request a content page with a NULL `ttext` field.
+
+If a content page is requested but no record in this table has a `tname` matching the requested page ID, then the content page does not exist and HTTP status 404 "Not Found" can be returned to clients.
