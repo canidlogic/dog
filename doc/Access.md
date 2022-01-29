@@ -130,3 +130,18 @@ If a catalog page was requested but no valid cookie was provided, the user is re
 Resource requests always fail with 403 "Forbidden" because there is no idiomatic way of redirecting a resource request to a webpage.
 
 The redirection target of `guest_agree_catalog` and `guest_agree_content` should be the agreement page, which is not defined within the Dog CMS system.  It is recommended that this page be implemented with hidden HTML form controls that have the current time and the HMAC-MD5 of the current time using a copy of the secret key from the `guest_agree_key` variable.  This copy of the secret key must be stored server-side and not transmitted to the client, however!  The hidden HTML form controls should also include the redirection target, and then the "Agree" button is a form submit to the gateway script described earlier, while the "Disagree" button takes the user outside of the site somewhere.  Remember to add `no-store` cache control to this agreement page so that a fresh copy with a fresh time is generated each request.
+
+## Private access control
+
+In the `private` model of access control, all access to catalog pages, resources, and content pages is protected by username and password authentication.  A check will be made that the client provided an appropriate access cookie for any user _except_ `guest` (see earlier).  If so, then the requested data is returned successfully.
+
+If an appropriate access cookie is not provided, then the following two variables in the `vars` table are relevant:
+
+- `login_for_catalog` : URL prefix for catalog page login
+- `login_for_content` : URL prefix for content page login
+
+If a catalog page was requested but no valid cookie was provided, the user is redirected to an URL formed by taking `login_for_catalog` and appending the catalog page number to it.  If a content page was requested but no valid cookie was provided, the user is redirected to an URL formed by taking `login_for_content` and appending the page ID to it.  If the appropriate variable is not defined, then 403 "Forbidden" is returned.
+
+Resource requests always fail with 403 "Forbidden" because there is no idiomatic way of redirecting a resource request to a webpage.
+
+The redirection target of `login_for_catalog` and `login_for_content` should be the login page, which is not defined within the Dog CMS system.  It is recommended that this page be implemented with hidden HTML form controls that include the redirection target.  There are form controls for entering the username and password.  The form is then submitted to the gateway script.  It should also be possible to use the form page as the invalidated redirection target, by providing a variable that displays an error message and to try again.
