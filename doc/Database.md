@@ -9,6 +9,7 @@ The database is stored in a SQLite database file, which has the following tables
 5. `embed`
 6. `catalog`
 7. `content`
+8. `user`
 
 ## Name definition
 
@@ -220,3 +221,36 @@ The `tetag` is the ETag for this generated page, which should be a SHA-1 digest 
 If `ttext` is NULL, it means that the content page exists, but there was an error generating it.  HTTP status 500 "Internal Server Error" can be returned to clients that request a content page with a NULL `ttext` field.
 
 If a content page is requested but no record in this table has a `tname` matching the requested page ID, then the content page does not exist and HTTP status 404 "Not Found" can be returned to clients.
+
+## User table
+
+The `user` table contains user access information.  This table is only relevant in `guest` and `private` access modes.  See `Access.md` for further information about how those modes work.  In the default `public` access mode, this table may be left empty.
+
+This is the only table that can be modified by HTTP clients, for the limited purpose of tracking failed login attempts in `private` mode.
+
+The user table has the following structure:
+
+    CREATE TABLE user(
+      uid     INTEGER PRIMARY KEY,
+      uname   TEXT UNIQUE NOT NULL,
+      upswd   TEXT NOT NULL,
+      ukey    TEXT NOT NULL,
+      ufcount INTEGER NOT NULL,
+      uftime  INTEGER NOT NULL,
+      uxcount INTEGER NOT NULL,
+      uxtime  INTEGER NOT NULL
+    );
+
+    CREATE UNIQUE INDEX user_iname ON user(uname);
+
+The `uid` is the SQLite `rowid` alias.
+
+The `uname` is the username while the `upswd` is the hash of the user password according to bcrypt.  For the special user `guest`, the password should be randomly generated.
+
+`ukey` is a randomly selected secret key which is used as the key for verifying the HMAC-MD5 for this user in cookies.
+
+`ufcount` is the failed login attempt count while `uftime` is the number of seconds since midnight GMT at the start of January 1, 1970 since the last failed login attempt, or zero.
+
+`uxcount` and `uxtime` are kept updated with the maximum `ufcount` reached for this user and the time that this value was reached.
+
+See `Access.md` for details of how user authentication works.
