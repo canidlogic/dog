@@ -26,7 +26,9 @@ The `cookies` requirement means that the web client must support HTTP(S) cookies
 
 All modes except `public` use a cookie to control access.  The value of a cookie always has the following format:
 
-    name|f3770d22c98a4ba4570ede23fcbd6d42
+    p|name|f3770d22c98a4ba4570ede23fcbd6d42
+
+The start of the cookie value is always either `p|` for a persistent cookie or `s|` for a session cookie.  Persistent cookies choose the default behavior.  `s|` selects a behavior that the cookie should never be given an expiration time, even if `cookie_expires` is configured (see below).  This allows users to login only for one session on the device.
 
 The `name` is a username.  This is always followed by a vertical bar `|` and then an HMAC-MD5.  In the `user` table in the Dog CMS database, each user has a secret, randomly-generated key that is used with the HMAC-MD5.  For the cookie value to be validated, it must have the format shown above AND the HMAC-MD5 must match the provided username, using the secret key from the user record in the `user` table.
 
@@ -50,7 +52,7 @@ The `cookie_path`, if present, should be an absolute path starting with `/` that
 
 The `cookie_domain`, if present, should be a domain name that is prefixed with a `.` dot, and at least two dots including these opening dot should be present.  The cookie will be visible only in the selected domain _and all subdomains._  For example, if the cookie domain is `.public.example.com` then the cookie will be visible in `public.example.com` and `www2.public.example.com` but not in `example.com`.
 
-The `cookie_expires`, if present, is the duration that the cookie can be stored by the client.  This must have the format of a sequence of one or more decimal digits followed by a unit designation letter.  The units `s` (second) `m` (minute) `h` (hour) and `d` (day) are supported.
+The `cookie_expires`, if present, is the duration that the cookie can be stored by the client.  This must have the format of a sequence of one or more decimal digits followed by a unit designation letter.  The units `s` (second) `m` (minute) `h` (hour) and `d` (day) are supported.  Each time a validated cookie is accepted when an expiration time is configured, the cookie will be reset on the client with an updated expiration time so that the client may keep on using the cookie.  However, if the cookie value starts with `s|` (see earlier), then this variable value is ignored and the cookie always lasts for only the current session.
 
 The `cookie_secure` flag, if present AND equal to `1`, indicates that the client should only send this cookie over a secure HTTPS connection.  Don't use this unless you are running the Dog CMS site exclusively on HTTPS!
 
@@ -75,6 +77,13 @@ In `private` mode, the following variables are required in the POST request:
 - `password` - the password for the user
 
 The `uname` must not be `guest` or the request is automatically invalid.  Otherwise, the request is validated only if `uname` is in the `user` table AND `password` matches the password hash for that user.
+
+In both `guest` and `private` mode, the request may include the following variable to control cookie persistence:
+
+- `persist_mode` - set to `remember` (default) or `forget`
+- `persist_flip` - set to `flip` to flip the mode
+
+The `persist_mode` chooses the regular behavior of whether cookie values should have the `p|` or `s|` prefix (see earlier).  The `persist_flip` is set to `flip` to flip the persist mode to the other value.  For example, if a login page normally should have `forget` mode but the user has a "remember me" checkbox, then `persist_mode` should be `forget` and the "remember me" checkbox should set `persist_flip` to `flip`.
 
 In both `guest` and `private` mode, the request may include the following variables to indicate where the user should be redirected to after successful validation:
 
