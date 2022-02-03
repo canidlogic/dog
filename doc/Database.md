@@ -36,6 +36,8 @@ The `vars` table is a simple key-value mapping that stores various configuration
 
 The `vid` is the SQLite `rowid` alias field.  The `vkey` is the configuration variable name, which has the name format defined earlier and must be unique within the table.  The `vval` is the value assigned to the configuration variable, which may be NULL.
 
+See `Vars.md` for the configuration variables that may be used in this table.
+
 ## Page table
 
 The `page` table stores all the content pages within the Dog CMS.  It has the following structure:
