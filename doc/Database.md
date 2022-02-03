@@ -65,7 +65,7 @@ The `pjson` field stores a JSON representation of the page data.  See `PageTempl
 
 The `plist` and `ppage` fields store the HTML content used to render the page in catalog listings and content pages, respectively.  `plist` should be an HTML fragment that will be included within a catalog page, while `ppage` should be a complete HTML page.  Dog URL replacement is done to both of these values to render them.  See `DogURL.md` for further information.
 
-The `purl` field is the canonical URL used to refer to this page on the website.  If a variable in the `vars` table named `local_page_prefix` is defined, then this value is automatically prefixed to all `purl` field values to form the actual URLs to the pages.  See `DogURL.md` for further information.
+The `purl` field is the canonical URL used to refer to this page on the website.  If a variable in the `vars` table named `page_prefix` is defined, then this value is automatically prefixed to all `purl` field values to form the actual URLs to the pages.  See `DogURL.md` for further information.
 
 ## MIME table
 
