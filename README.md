@@ -1,2 +1,2 @@
 # dog
-Basic content management system
+Simple photo album based on Yip CMS.
