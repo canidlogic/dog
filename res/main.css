@@ -1,0 +1,110 @@
+body {
+  padding-top: 1em;
+  padding-bottom: 5em;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  max-width: 30em;
+  margin-left: auto;
+  margin-right: auto;
+  font-family: sans-serif;
+  color: black;
+  background-color: linen;
+}
+
+:link {
+  text-decoration: none;
+  color: blue
+}
+
+:visited {
+  text-decoration: none;
+  color: blue
+}
+
+h1 {
+  font-family: sans-serif;
+  text-align: center;
+}
+
+h2 {
+  margin-top: 2.5em;
+  font-family: sans-serif;
+}
+
+a {
+  font-size: larger;
+}
+
+hr {
+  margin-bottom: 2.5em;
+}
+
+img {
+  max-width: 100%;
+}
+
+.albumbar {
+  text-align: center;
+}
+
+.backbar {
+  font-size: 110%;
+  text-align: center;
+}
+
+.listing {
+  margin-top: 4.5em;
+}
+
+.gallery {
+  margin-top: 2.5em;
+  margin-bottom: 2.5em;
+}
+
+.visitbar {
+  background-color: white;
+  border: thin outset;
+  padding: 0.125em;
+}
+
+.galleryname {
+  margin-top: 0.25em;
+  font-family: serif;
+  font-size: larger;
+  font-weight: bold;
+}
+
+.gallerydesc {
+  margin-top: 0.125em;
+  font-family: serif;
+  font-style: italic;
+}
+
+.uid {
+  font-family: monospace;
+}
+
+.archive {
+  margin-top: 0.5em;
+}
+
+.photos {
+  text-align: center;
+  margin-top: 4.5em;
+}
+
+.scriptbox {
+  text-align: center;
+  font-weight: bold;
+}
+
+.photobox {
+  margin-top: 1.5em;
+  background-color: white;
+  border: thin outset;
+  padding: 0.5em;
+}
+
+.capframe {
+  font-family: monospace;
+}
