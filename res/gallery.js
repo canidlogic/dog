@@ -298,7 +298,7 @@
         }
       }
       
-    } catch {
+    } catch (ex) {
       fault(func_name, 10);
     }
     
