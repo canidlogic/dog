@@ -317,6 +317,16 @@
       // There are no photos, so just put the empty text
       e.innerHTML = html_esc(EMPTY_TEXT);
     }
+    
+    // Update the main h1 DIV to have the proper title
+    e = document.getElementById("h1main");
+    if (!e) {
+      fault(func_name, 30);
+    }
+    e.innerHTML = html_esc(GALLERY_NAME);
+    
+    // Update the title of the document to insert the gallery name
+    document.title = html_esc(GALLERY_NAME) + " - " + document.title;
   }
 
   /*
