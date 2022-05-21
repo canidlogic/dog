@@ -2,18 +2,18 @@
 <html lang="<TMPL_VAR NAME=site_lang>">
   <head>
     <meta charset="utf-8"/>
-    <title><TMPL_VAR NAME=site_name ESCAPE=HTML></title>
+    <title><TMPL_VAR NAME=gname ESCAPE=HTML>
+      - <TMPL_VAR NAME=site_name ESCAPE=HTML></title>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0"/>
     <link href="<TMPL_VAR NAME=uri_css>" rel="stylesheet"/>
-    <script src="<TMPL_VAR NAME=uri_js_gallery" defer></script>
   </head>
   <body>
     <div class="albumbar"><TMPL_VAR NAME=site_name ESCAPE=HTML></div>
     <hr/>
 
-    <h1 id="h1main">&nbsp;</h1>
+    <h1><TMPL_VAR NAME=gname ESCAPE=HTML></h1>
 
 <TMPL_IF NAME=_archive>
     <div class="backbar">
@@ -29,25 +29,24 @@
     </div>
 </TMPL_IF>
 
-    <div class="photos" id="galdiv">
-      <TMPL_VAR NAME=loc_loading ESCAPE=HTML>
-    </div>
-
-    <noscript>
-      <div class="scriptbox">
-        <TMPL_VAR NAME=loc_need_js ESCAPE=HTML>
+    <div class="photos">
+<TMPL_IF NAME=photos>
+<TMPL_LOOP NAME=photos>
+      <div class="photobox">
+        <div class="photoframe">
+          <a href="<TMPL_VAR NAME=path_full>">
+            <img src="<TMPL_VAR NAME=path_tiny>"/>
+          </a>
+        </div>
+        <div class="capframe">
+          <TMPL_VAR NAME=_uid> - <TMPL_VAR NAME=ati_full>
+        </div>
       </div>
-    </noscript>
-
-<script id="gconfigjson" type="application/json">
-{
-  "galleryuid": <TMPL_VAR NAME=_uid>,
-  "photopath": "<TMPL_VAR NAME=uri_photo ESCAPE=JS>",
-  "emptytext": "<TMPL_VAR NAME=loc_gallery_empty ESCAPE=JS>"
-}
-</script>
-
-<TMPL_VAR NAME=_code>
+</TMPL_LOOP>
+<TMPL_ELSE>
+      <TMPL_VAR NAME=loc_gallery_empty ESCAPE=HTML>
+</TMPL_IF>
+    </div>
 
   </body>
 </html>
