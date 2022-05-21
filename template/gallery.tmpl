@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="<TMPL_VAR NAME=site_lang>">
+  <head>
+    <meta charset="utf-8"/>
+    <title><TMPL_VAR NAME=site_name ESCAPE=HTML></title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"/>
+    <link href="<TMPL_VAR NAME=uri_css>" rel="stylesheet"/>
+    <script src="<TMPL_VAR NAME=uri_js_gallery" defer></script>
+  </head>
+  <body>
+    <div class="albumbar"><TMPL_VAR NAME=site_name ESCAPE=HTML></div>
+    <hr/>
+
+    <h1 id="h1main">&nbsp;</h1>
+
+<TMPL_IF NAME=_archive>
+    <div class="backbar">
+      <a href="<TMPL_VAR NAME=uri_archive><TMPL_VAR NAME=_archive>">
+        <TMPL_VAR NAME=loc_back_archive ESCAPE=HTML>
+      </a>
+    </div>
+<TMPL_ELSE>
+    <div class="backbar">
+      <a href="<TMPL_VAR NAME=uri_catalog>">
+        <TMPL_VAR NAME=loc_back_catalog ESCAPE=HTML>
+      </a>
+    </div>
+</TMPL_IF>
+
+    <div class="photos" id="galdiv">
+      <TMPL_VAR NAME=loc_loading ESCAPE=HTML>
+    </div>
+
+    <noscript>
+      <div class="scriptbox">
+        <TMPL_VAR NAME=loc_need_js ESCAPE=HTML>
+      </div>
+    </noscript>
+
+<script id="gconfigjson" type="application/json">
+{
+  "galleryuid": <TMPL_VAR NAME=_uid>,
+  "photopath": "<TMPL_VAR NAME=uri_photo ESCAPE=JS>",
+  "emptytext": "<TMPL_VAR NAME=loc_gallery_empty ESCAPE=JS>"
+}
+</script>
+
+<TMPL_VAR NAME=_code>
+
+  </body>
+</html>
