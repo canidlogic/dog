@@ -1,0 +1,58 @@
+` * * * * * * * * * * * * * * * *
+` *                             *
+` *        !!! STOP !!!         *
+` *                             *
+` * This is a Dog metatemplate! *
+` *                             *
+` * You must run this through   *
+` * dogmeta.pl before you can   *
+` * use it!                     *
+` *                             *
+` * * * * * * * * * * * * * * * *
+`
+<!DOCTYPE html>
+<html lang="<TMPL_VAR NAME=site_lang>">
+  <head>
+    <meta charset="utf-8"/>
+    <title><TMPL_VAR NAME=site_name ESCAPE=HTML></title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"/>
+    <link href="<TMPL_VAR NAME=uri_css>" rel="stylesheet"/>
+  </head>
+  <body>
+    <h1><TMPL_VAR NAME=site_name ESCAPE_HTML></h1>
+
+    <div class="listing">
+<TMPL_LOOP NAME=_posts>
+      <div class="gallery">
+        <div class="visitbar">
+          <a href="<TMPL_VAR NAME=uri_gallery><TMPL_VAR NAME=_uid>">
+`D
+          </a>
+          <span class="uid">
+            (#<TMPL_VAR NAME=_uid>)
+          </span>
+        </div>
+<TMPL_VAR NAME=_code>
+      </div>
+</TMPL_LOOP>
+    </div>
+
+<TMPL_IF NAME=_archives>
+    <h2><TMPL_VAR NAME=loc_archives ESCAPE=HTML></h2>
+
+<TMPL_LOOP NAME=_archives>
+    <div class="archive">
+      <a href="<TMPL_VAR NAME=uri_archive><TMPL_VAR NAME=_uid>">
+        <TMPL_VAR NAME=_name ESCAPE=HTML>
+      </a>
+      <span class="uid">
+        (#<TMPL_VAR NAME=_uid>)
+      </span>
+    </div>
+</TMPL_LOOP>
+</TMPL_IF>
+  
+  </body>
+</html>
