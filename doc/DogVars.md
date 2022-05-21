@@ -1,6 +1,8 @@
 # Dog template variables
 
-This document describes the custom template variables that must be set up in the Yip CMS before the Dog (meta)templates in the `template` directory can function properly.  (Remember that the Dog metatemplates will also need to be compiled with `dogmeta.pl` before they can be used!)
+This document describes the custom template variables that must be set up in the Yip CMS before the Dog (meta)templates in the `template` directory can function properly.
+
+(Remember that the Dog metatemplates will also need to be compiled with `dogmeta.pl` before they can be used, and that the Dog preprocessor must be installed in the Yip deployment!)
 
 ## Localization variables
 
@@ -21,14 +23,6 @@ On gallery pages, the string used in the link leading back to the main catalog p
 - `loc_back_archive`
 
 On gallery pages, the string used in the link leading back to an archive page.  Suggested to enclose this string within some kind of brackets.  Suggested value in English is `» Back to archive «`
-
-- `loc_loading` 
-
-On gallery pages, the string that is displayed while the page is loading JavaScript.  Suggested value in English is `Loading...`
-
-- `loc_need_js`
-
-On gallery pages, the string that is displayed if the client has disabled JavaScript.  Suggested value in English is `JavaScript is required to view the gallery!`
 
 - `loc_gallery_empty`
 
@@ -53,10 +47,6 @@ The URI variables define the paths to various resources that will be used within
 - `uri_css`
 
 The path to the `main.css` resource.  If you are following the recommended approach of serving this CSS file as a global resource, this path should be the path to the specific Yip global resource holding the CSS file.  This should be served as a `text/css` file, and the data contained within should be the `main.css` file in the `res` directory.
-
-- `uri_js_gallery`
-
-The path to the `gallery.js` resource.  Actually, it is recommended that you use the minified `gallery_min.js` script, which is smaller and faster.  If you are following the recommended approach of serving this JavaScript file as a global resource, this path should be the path to the specific Yip global resource holding the JavaScript file.  This should be served as a `text/javascript` file, and the data contained within is recommended to be the `gallery_min.js` file in the `res` directory, though you can also use the `gallery.js` file.
 
 - `uri_catalog`
 
