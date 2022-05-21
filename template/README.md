@@ -10,4 +10,4 @@ The metatemplates (end with file extension `.meta`) must be compiled first with 
 
 The `gallery.tmpl` does not need any metatemplate processing, and it can be directly uploaded to the Yip CMS.
 
-See the `DogVars.md` documentation file in the `doc` directory for what special template variables must be defined in Yip before these templates can work properly.
+See the `DogVars.md` documentation file in the `doc` directory for what special template variables must be defined in Yip before these templates can work properly.  Also note that the Dog preprocessor plug-in for Yip must be installed in the Yip deployment for the `gallery.tmpl` to work correctly.
