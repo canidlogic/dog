@@ -213,9 +213,7 @@ An example of a standard body looks like this:
   <div class="galleryname">Example photo gallery</div>
   <div class="gallerydesc">An example photo gallery.</div>
   </TMPL_IF>
-  
   <TMPL_IF NAME=_full>
-  <script id="galleryjson" type="application/json">
   {
     "gname": "Example photo gallery",
     "gdesc": "An example photo gallery.",
@@ -228,7 +226,6 @@ An example of a standard body looks like this:
       5005
     ]
   }
-  </script>
   </TMPL_IF>
 
 This body has two completely separate renderings when in partial mode
@@ -238,14 +235,15 @@ and description of the gallery that were given in the input JSON to this
 script, putting each in its own DIV with its own DIV class for styling
 purposes, as shown in the example above.
 
-In full mode, the body adds a data-bearing script element containing
-JSON describing the gallery.  The JSON is an object with C<gdesc> and
-C<gname> properties storing the description and name of the gallery once
-again, and then a C<photos> properties which maps to an array of
-integers.  Each integer is attachment index of a photo in the gallery,
-and the indices are sorted in ascending order of photo number.  Where a
-specific photo number has multiple versions in various resolution
-classes, the largest resolution class available is given.
+In full mode, the body renders JSON which will then be used by the Dog
+preprocessor plug-in to Yip to generated additional template variables
+that are used by the gallery template.  The JSON is an object with
+C<gdesc> and C<gname> properties storing the description and name of the
+gallery once again, and then a C<photos> properties which maps to an
+array of integers.  Each integer is attachment index of a photo in the
+gallery, and the indices are sorted in ascending order of photo number.
+Where a specific photo number has multiple versions in various
+resolution classes, the largest resolution class available is given.
 
 Within the C<gdesc> and C<gname> property values, the less-than and
 greater-than angle brackets as well as the ampersand will be escaped
@@ -802,7 +800,6 @@ qq<<TMPL_IF NAME=_partial>
 <div class="gallerydesc">$pgd_html</div>
 </TMPL_IF>
 <TMPL_IF NAME=_full>
-<script id="galleryjson" type="application/json">
 {
   "gname": "$pgn_json",
   "gdesc": "$pgd_json",
@@ -824,7 +821,6 @@ for(my $i = 0; $i <= $#ati; $i++) {
 $body = $body . q<
   ]
 }
-</script>
 </TMPL_IF>
 >;
 
